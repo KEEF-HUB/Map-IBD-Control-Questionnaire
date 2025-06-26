@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Research Collaborators Map</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
+
+  <style>
+    #map {
+      height: 600px;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<script>
+  // Initialize the map
+  var map = L.map('map').setView([20, 0], 2);  // center of the world
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+
+  // URL to your published Google Sheet CSV export
+  const sheetURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQQLfeEZphBlf7UtRW5c5Q3BgEcTSQ2G-j6kEmY1uDPUX2tUHf4hther_D72olZSt368qJLYRFQW5JL/pub?output=csv';
+
+  // Fetch and parse the CSV
+  Papa.parse(sheetURL, {
+    download: true,
+    header: true,
+    complete: function(results) {
+      results.data.forEach(function(row) {
+        const lat = parseFloat(row.Latitude);
+        const lng = parseFloat(row.Longitude);
+        const name = row.Name;
+        const city = row.City;
+        const country = row.Country;
+        const desc = row.Description;
+
+        if (!isNaN(lat) && !isNaN(lng)) {
+          L.marker([lat, lng])
+            .addTo(map)
+            .bindPopup(`<strong>${name}</strong><br>${city}, ${country}<br>${desc}`);
+        }
+      });
+    }
+  });
+</script>
+
+</body>
+</html>
